@@ -1,20 +1,6 @@
 const { Schema, model } = require("mongoose");
 
-// Schema to create Thought model
-const thoughtSchema = new Schema({
-    thoughtText: { type: String, required: true, maxLength: 128 },
-    username: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now },
-    reactions: [reactionSchema],
-},
-{
-    toJSON: {
-        virtuals: true,
-        getters: true,
-      },
-      id: false, 
-});
-
+// Schema to create reaction to be embedded in Thought model
 const reactionSchema = new Schema({
     reactionId: { 
         type: Schema.Types.ObjectId,
@@ -24,6 +10,21 @@ const reactionSchema = new Schema({
     reactionBody: { type: String, required: true, maxLength: 280 },
     username: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
+},
+{
+    toJSON: {
+        virtuals: true,
+        getters: true,
+      },
+      id: false, 
+});
+
+// Schema to create Thought model
+const thoughtSchema = new Schema({
+    thoughtText: { type: String, required: true, maxLength: 128 },
+    username: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now },
+    reactions: [reactionSchema],
 },
 {
     toJSON: {
@@ -47,7 +48,7 @@ reactionSchema.virtual('createdAtFormatted').get(function() {
 });
 
 function formatDate(date) {
-    return `${date.toLocalDateString()} ${date.toLocalTimeString()}`;
+    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 }
 
 const Thought = model('Thought', thoughtSchema);
