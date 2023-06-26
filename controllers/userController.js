@@ -15,10 +15,12 @@ module.exports = {
   async getSingleUser(req, res) {
     try {
       const user = await User.findOne({ _id: req.params.userId })
-        .select('-__v');
+        .select('-__v')
+        .populate('friends')
+        .populate('thoughts');
 
       if (!user) {
-        return res.status(404).json({ message: 'No user with that ID' });
+        return res.status(404).json({ message: 'No user with that ID!' });
       }
 
       res.status(200).json(user);
@@ -30,7 +32,7 @@ module.exports = {
   async createUser(req, res) {
     try {
       const dbUserData = await User.create(req.body);
-      res.status(200).json(dbUserData);
+      res.status(200).json({ message: 'User created successfully!' });
     } catch (err) {
       res.status(500).json(err);
     }
@@ -45,10 +47,10 @@ module.exports = {
       );
       
       if (!user) {
-        return res.status(404).json({ message: 'No user with that id!' });
+        return res.status(404).json({ message: 'No user with that ID!' });
       }  
 
-      res.status(200).json(user);
+      res.status(200).json({ message: 'User updated successfully!' });
     } catch (err) {
       res.status(500).json(err);
     }
@@ -58,12 +60,12 @@ module.exports = {
     try {
       const user = await User.findOneAndDelete({ _id: req.params.userId });
       if(!user) {
-        return res.status(404).json({ message: 'no user found with that ID' });
+        return res.status(404).json({ message: 'no user found with that ID!' });
       }
-      
+
       await Thought.deleteMany({ username: user.username });
 
-      res.status(200).json({ message: 'User successfully deleted' });
+      res.status(200).json({ message: 'User successfully deleted!' });
     } catch (err) {
       res.status(500).json(err);
     }
@@ -83,10 +85,10 @@ module.exports = {
       );
       if (!friend) {
         return res.status(404).json({
-          message: 'No user with that id!',
+          message: 'No user with that ID!',
         });
       }
-      res.status(200).json(friend);
+      res.status(200).json({ message: 'Friend successfully added!' });
     } catch (err) {
       res.status(500).json(err);
     }
@@ -107,7 +109,7 @@ module.exports = {
       if (!friend) {
         return res.status(404).json({ message: "User ID is invald; please check userId parameter!" })
       }
-      res.status(200).json({ message: 'Friend successfully deleted!' });
+      res.status(200).json({ message: 'Friend successfully removed!' });
     } catch (err) {
       res.status(500).json(err);
     }

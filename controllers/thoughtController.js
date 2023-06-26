@@ -29,7 +29,7 @@ module.exports = {
     try {
       const thought = await Thought.create(req.body);
       const user = await User.findOneAndUpdate(
-        { username: req.body.username },
+        { _id: req.body.userId },
         { $addToSet: { thoughts: thought._id } },
         { new: true }
       );
@@ -56,10 +56,10 @@ module.exports = {
       );
 
       if (!thought) {
-        return res.status(404).json({ message: 'No thought with this id!' });
+        return res.status(404).json({ message: 'No thought with this ID!' });
       }
 
-      res.status(200).json(thought);
+      res.status(200).json({ message: 'Thought updated successfully!' });
     } catch (err) {
       console.log(err);
       res.status(500).json(err);
@@ -71,7 +71,7 @@ module.exports = {
       const thought = await Thought.findOneAndRemove({ _id: req.params.thoughtId });
 
       if (!thought) {
-        return res.status(404).json({ message: 'No thought with this id!' });
+        return res.status(404).json({ message: 'No thought with this ID!' });
       }
 
       const user = await User.findOneAndUpdate(
@@ -83,7 +83,7 @@ module.exports = {
       if (!user) {
         return res
           .status(404)
-          .json({ message: 'Thought deleted but no user with this id!' });
+          .json({ message: 'Thought deleted but no user with this ID!' });
       }
 
       res.status(200).json({ message: 'Thought successfully deleted!' });
@@ -101,10 +101,10 @@ module.exports = {
       );
 
       if (!thought) {
-        return res.status(404).json({ message: 'No thought with this id!' });
+        return res.status(404).json({ message: 'No thought with this ID!' });
       }
 
-      res.status(200).json(thought);
+      res.status(200).json({ message: 'Reaction added successfully!' });
     } catch (err) {
       res.status(500).json(err);
     }
@@ -116,7 +116,7 @@ module.exports = {
         _id: req.params.thoughtId,
         reactions:
         {
-          $elemMatch: { reactionId: req.params.reactionId }
+          $elemMatch: { reactionId: req.body.reactionId }
         }
       });
       if (!thought) {
@@ -124,7 +124,7 @@ module.exports = {
       }
   
       const reaction = thought.reactions.find(
-        reaction => reaction.reactionId.toString() === req.params.reactionId
+        reaction => reaction.reactionId.toString() === req.body.reactionId
       );
   
       thought.reactions.pull(reaction);
