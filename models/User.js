@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const Thought = require('./Thought');
 
 // Schema to create User model
 const userSchema = new Schema({
@@ -32,6 +33,20 @@ const userSchema = new Schema({
         virtuals: true,
     },
     id: false,
+});
+
+// Pre-remove hook to remove any thoughts associated with user when user is deleted
+userSchema.pre('remove', async function(next) {
+  try {
+    const thoughts = await Thought.find({ username: this.username });
+
+    for (let i = 0; i < thoughts.length; i++) {
+      await thoughts[i].remove();
+    }
+    return next();
+  } catch (err) {
+    return next(err);
+  }
 });
 
 // Virtual property 'friendCount' that gets the amount of friends per user
