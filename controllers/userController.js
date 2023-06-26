@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { Types } = require("mongoose");
 
 module.exports = {
   async getUsers(req, res) {
@@ -58,6 +59,50 @@ module.exports = {
         return res.status(404).json({ message: 'no user that ID' });
       }
       res.json({ message: 'User successfully deleted' });
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+  // create a friend
+  async createFriend (req, res) {
+    try {
+      if (!Types.ObjectId.isValid(req.params.friendId)) {
+        return res.status(404).json({
+          message: 'The requested friend is not a valid ID; please check friendId parameter',
+        });
+      }
+      const friend = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $addToSet: { friends: req.params.friendId } },
+        { new: true }
+      );
+      if (!friend) {
+        return res.status(404).json({
+          message: 'No user with that id!',
+        });
+      }
+      res.status(200).json(friend);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+  // delete a friend
+  async deleteFriend (req, res) {
+    try {
+      if (!Types.ObjectId.isValid(req.params.friendId)) {
+        return res.status(404).json({
+          message: 'The requested friend is not a valid ID; please check friendId parameter!',
+        });
+      }
+      const friend = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $pull: { friends: req.params.friendId } },
+        { new: true }
+      );
+      if (!friend) {
+        return res.status(404).json({ message: "User ID is invald; please check userId parameter!" })
+      }
+      res.status(200).json({ message: 'Friend successfully deleted!' });
     } catch (err) {
       res.status(500).json(err);
     }

@@ -1,10 +1,9 @@
-const { Schema, model } = require("mongoose");
+const { Schema, Types, model } = require("mongoose");
 
 // Schema to create reaction to be embedded in Thought model
 const reactionSchema = new Schema({
     reactionId: { 
-        type: Schema.Types.ObjectId,
-        // if the above line doesn't work, try type: mongoose.Schema.Types.ObjectId
+        type: Types.ObjectId,
         default: () => new Types.ObjectId(),
     },
     reactionBody: { type: String, required: true, maxLength: 280 },

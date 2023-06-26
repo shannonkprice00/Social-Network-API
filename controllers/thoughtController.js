@@ -108,17 +108,26 @@ module.exports = {
   // Remove thought reaction
   async removeThoughtReaction(req, res) {
     try {
-      const thought = await Thought.findOneAndUpdate(
-        { _id: req.params.thoughtId },
-        { $pull: { reactions: { reactionId: req.params.reactionId } } },
-        { runValidators: true, new: true }
-      )
-
+      const thought = await Thought.findOne({
+        _id: req.params.thoughtId,
+        reactions:
+        {
+          $elemMatch: { reactionId: req.params.reactionId }
+        }
+      });
       if (!thought) {
-        return res.status(404).json({ message: 'No thought with this id!' });
+        return res.status(404).json({ message: 'Incorrect thought or reaction ID! Please use valid IDs!' });
       }
-
-      res.json(thought);
+  
+      const reaction = thought.reactions.find(
+        reaction => reaction.reactionId.toString() === req.params.reactionId
+      );
+  
+      thought.reactions.pull(reaction);
+  
+      await thought.save();
+  
+      return res.json({ message: 'Reaction deleted successfully' });
     } catch (err) {
       res.status(500).json(err);
     }
