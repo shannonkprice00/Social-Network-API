@@ -1,23 +1,25 @@
 const { Thought, User } = require('../models');
 
 module.exports = {
+  // get all thoughts
   async getThoughts(req, res) {
     try {
       const thoughts = await Thought.find();
-      res.json(thoughts);
+      res.status(200).json(thoughts);
     } catch (err) {
       res.status(500).json(err);
     }
   },
+  // get a single thought by thought Id
   async getSingleThought(req, res) {
     try {
       const thought = await Thought.findOne({ _id: req.params.thoughtId })
 
       if (!thought) {
-        return res.status(404).json({ message: 'No thought with that ID' });
+        return res.status(404).json({ message: 'No thought with that ID!' });
       }
 
-      res.json(thought);
+      res.status(200).json(thought);
     } catch (err) {
       res.status(500).json(err);
     }
@@ -34,16 +36,17 @@ module.exports = {
 
       if (!user) {
         return res.status(404).json({
-          message: 'Thought created, but found no user with that ID',
+          message: 'Thought created, but found no user with that ID!',
         });
       }
 
-      res.json('Created the thought 🎉');
+      res.status(200).json('Created the thought successfully!');
     } catch (err) {
       console.log(err);
       res.status(500).json(err);
     }
   },
+  // update an existing thought by thought Id
   async updateThought(req, res) {
     try {
       const thought = await Thought.findOneAndUpdate(
@@ -56,12 +59,13 @@ module.exports = {
         return res.status(404).json({ message: 'No thought with this id!' });
       }
 
-      res.json(thought);
+      res.status(200).json(thought);
     } catch (err) {
       console.log(err);
       res.status(500).json(err);
     }
   },
+  // delete an existing thought by thought Id
   async deleteThought(req, res) {
     try {
       const thought = await Thought.findOneAndRemove({ _id: req.params.thoughtId });
@@ -82,12 +86,12 @@ module.exports = {
           .json({ message: 'Thought deleted but no user with this id!' });
       }
 
-      res.json({ message: 'Thought successfully deleted!' });
+      res.status(200).json({ message: 'Thought successfully deleted!' });
     } catch (err) {
       res.status(500).json(err);
     }
   },
-  // Add a thought reaction
+  // Add a thought reaction to existing thought by thought Id
   async addThoughtReaction(req, res) {
     try {
       const thought = await Thought.findOneAndUpdate(
@@ -100,12 +104,12 @@ module.exports = {
         return res.status(404).json({ message: 'No thought with this id!' });
       }
 
-      res.json(thought);
+      res.status(200).json(thought);
     } catch (err) {
       res.status(500).json(err);
     }
   },
-  // Remove thought reaction
+  // Remove thought reaction by thought Id & reaction Id
   async removeThoughtReaction(req, res) {
     try {
       const thought = await Thought.findOne({
@@ -127,7 +131,7 @@ module.exports = {
   
       await thought.save();
   
-      return res.json({ message: 'Reaction deleted successfully' });
+      return res.status(200).json({ message: 'Reaction deleted successfully' });
     } catch (err) {
       res.status(500).json(err);
     }

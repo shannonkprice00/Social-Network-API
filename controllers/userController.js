@@ -1,15 +1,17 @@
-const User = require('../models/User');
+const { User, Thought } = require('../models');
 const { Types } = require("mongoose");
 
 module.exports = {
+  // get all users
   async getUsers(req, res) {
     try {
       const users = await User.find();
-      res.json(users);
+      res.status(200).json(users);
     } catch (err) {
       res.status(500).json(err);
     }
   },
+  // get a single user by Id
   async getSingleUser(req, res) {
     try {
       const user = await User.findOne({ _id: req.params.userId })
@@ -19,7 +21,7 @@ module.exports = {
         return res.status(404).json({ message: 'No user with that ID' });
       }
 
-      res.json(user);
+      res.status(200).json(user);
     } catch (err) {
       res.status(500).json(err);
     }
@@ -28,12 +30,12 @@ module.exports = {
   async createUser(req, res) {
     try {
       const dbUserData = await User.create(req.body);
-      res.json(dbUserData);
+      res.status(200).json(dbUserData);
     } catch (err) {
       res.status(500).json(err);
     }
   },
-  // update a user
+  // update a user by Id
   async updateSingleUser(req, res) {
     try {
       const user = await User.findOneAndUpdate(
@@ -46,25 +48,28 @@ module.exports = {
         return res.status(404).json({ message: 'No user with that id!' });
       }  
 
-      res.json(user);
+      res.status(200).json(user);
     } catch (err) {
       res.status(500).json(err);
     }
   },
-  // delete a user
+  // delete a user by Id
   async deleteSingleUser (req, res) {
     try {
       const user = await User.findOneAndDelete({ _id: req.params.userId });
       if(!user) {
-        return res.status(404).json({ message: 'no user that ID' });
+        return res.status(404).json({ message: 'no user found with that ID' });
       }
-      res.json({ message: 'User successfully deleted' });
+      
+      await Thought.deleteMany({ username: user.username });
+
+      res.status(200).json({ message: 'User successfully deleted' });
     } catch (err) {
       res.status(500).json(err);
     }
   },
-  // create a friend
-  async createFriend (req, res) {
+  // add a friend
+  async addFriend (req, res) {
     try {
       if (!Types.ObjectId.isValid(req.params.friendId)) {
         return res.status(404).json({
@@ -86,8 +91,8 @@ module.exports = {
       res.status(500).json(err);
     }
   },
-  // delete a friend
-  async deleteFriend (req, res) {
+  // remove a friend
+  async removeFriend (req, res) {
     try {
       if (!Types.ObjectId.isValid(req.params.friendId)) {
         return res.status(404).json({
