@@ -1,4 +1,5 @@
 const { Schema, Types, model } = require("mongoose");
+const moment = require('moment');
 
 // Schema to create reaction to be embedded in Thought model
 const reactionSchema = new Schema({
@@ -8,7 +9,11 @@ const reactionSchema = new Schema({
     },
     reactionBody: { type: String, required: true, maxLength: 280 },
     username: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, 
+        default: Date.now,
+        get: function(value) {
+           return moment(value).format('MM-DD-YYYY HH:mm:ss')
+        } },
 },
 {
     toJSON: {
@@ -22,7 +27,11 @@ const reactionSchema = new Schema({
 const thoughtSchema = new Schema({
     thoughtText: { type: String, required: true, maxLength: 128 },
     username: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now },
+    createdAt: { type: Date, 
+                 default: Date.now,
+                 get: function(value) {
+                    return moment(value).format('MM-DD-YYYY HH:mm:ss')
+                 } },
     reactions: [reactionSchema],
 },
 {
@@ -37,18 +46,6 @@ const thoughtSchema = new Schema({
 thoughtSchema.virtual('reactionsCount').get(function () {
     return this.reactions.length;
 });
-
-thoughtSchema.virtual('createdAtFormatted').get(function() {
-    return formatDate(this.createdAt);
-});
-
-reactionSchema.virtual('createdAtFormatted').get(function() {
-    return formatDate(this.createdAt);
-});
-
-function formatDate(date) {
-    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-}
 
 const Thought = model('Thought', thoughtSchema);
 
