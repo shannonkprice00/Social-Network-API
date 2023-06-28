@@ -119,7 +119,7 @@ module.exports = {
         _id: req.params.thoughtId,
         reactions:
         {
-          $elemMatch: { reactionId: req.body.reactionId }
+          $elemMatch: { reactionId: req.params.reactionId }
         }
       });
       if (!thought) {
@@ -127,7 +127,7 @@ module.exports = {
       }
   
       const reaction = thought.reactions.find(
-        reaction => reaction.reactionId.toString() === req.body.reactionId
+        reaction => reaction.reactionId.toString() === req.params.reactionId
       );
   
       thought.reactions.pull(reaction);
